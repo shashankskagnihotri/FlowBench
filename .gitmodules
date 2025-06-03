@@ -1,9 +1,0 @@
-[submodule "optical_flow_estimation/mmflow"]
-	path = optical_flow_estimation/mmflow
-	url = git@github.com:open-mmlab/mmflow.git
-[submodule "object_detection/mmdetection"]
-	path = object_detection/mmdetection
-	url = git@github.com:open-mmlab/mmdetection.git
-[submodule "semantic_segmentation/mmsegmentation"]
-	path = semantic_segmentation/mmsegmentation
-	url = git@github.com:open-mmlab/mmsegmentation.git

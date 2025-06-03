@@ -180,6 +180,6 @@ dataset/
 *.npz
 *.out
 
-optical_flow_estimation/outputs
-optical_flow_estimation/datasets
-optical_flow_estimation/ptlflow_logs
+/outputs
+/datasets
+/ptlflow_logs
