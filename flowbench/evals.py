@@ -14,13 +14,13 @@ common_corruptions_2d = [
     'gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur', 'glass_blur',
     'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
     'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression',
-] 
+]
 
 common_corruptions_3d = [
-    'far_focus', 'near_focus', 'fog_3d', 'color_quant', 
+    'far_focus', 'near_focus', 'fog_3d', 'color_quant',
     'iso_noise', 'low_light', 'xy_motion_blur', 'z_motion_blur',
-] 
-    
+]
+
 attacks = ['fgsm', 'bim', 'pgd', 'cospgd', 'apgd', 'fab', 'pcfa']
 
 
@@ -40,7 +40,7 @@ def load_model(model_name: str, dataset: str):
     if dataset == 'kitti2015':
         dataset = 'kitti-2015'
     pretrained_ckpt = get_pretrained_ckpt(dataset)
-    
+
     model_ref = get_model_reference(model_name)
     checkpoints = model_ref.pretrained_checkpoints.keys()
 
@@ -52,9 +52,9 @@ def load_model(model_name: str, dataset: str):
 
 
 def evaluate(
-    model_name: str, dataset: str, 
+    model_name: str, dataset: str,
     retrieve_existing: bool = True, threat_model: str = None,
-    iterations: int = 20, epsilon: float = 8/255, alpha: float = 0.01, 
+    iterations: int = 20, epsilon: float = 8/255, alpha: float = 0.01,
     lp_norm: str = 'Linf', targeted: bool = True, target: str = 'zero', optim_wrt: str = 'ground_truth',
     weather: str = 'snow', num_particles: int = 10000,
     severity: int = 3,
@@ -86,22 +86,22 @@ def evaluate(
     dataset = dataset.lower()
     if dataset == 'kitti2015':
         dataset = 'kitti-2015'
-    
+
     model = load_model(model_name, dataset)
     results = {}
 
     if threat_model:
         threat_model = threat_model.lower()
-        
+
     if retrieve_existing:
         csv_path = 'eval_csv/evals.csv'
         df = pd.read_csv(csv_path)
-    
+
     if threat_model is None:
         if retrieve_existing:
             filtered = df[
-                (df['model'] == model_name) & 
-                (df['dataset'] == dataset) & 
+                (df['model'] == model_name) &
+                (df['dataset'] == dataset) &
                 (df['checkpoint'] == get_pretrained_ckpt(dataset)) &
                 (df['attack'] == 'none')
             ]
@@ -114,7 +114,7 @@ def evaluate(
         args = get_args_parser(model_name, dataset)
         args.output_path = Path(f'outputs/validate/{model_name}_{args.pretrained_ckpt}/unperturbed')
         args.output_path.mkdir(parents=True, exist_ok=True)
-        
+
         model = get_model(model_name, args.pretrained_ckpt, args)
         attack(args, model)
 
@@ -134,7 +134,7 @@ def evaluate(
 
         if retrieve_existing:
             filtered = df[
-                (df['model'] == model_name) & 
+                (df['model'] == model_name) &
                 (df['dataset'] == dataset) &
                 (df['checkpoint'] == get_pretrained_ckpt(dataset)) &
                 (df['attack'] == threat_model) &
@@ -148,7 +148,7 @@ def evaluate(
             if not filtered.empty:
                 if targeted:
                     filtered = filtered[filtered['target'] == target]
-                
+
                 metrics = ['epe', 'px3', 'cosim']
                 results = {metric: float(filtered.iloc[0][metric]) for metric in metrics}
                 return model, results
@@ -176,8 +176,8 @@ def evaluate(
     elif threat_model == 'adversarial_weather':
         if retrieve_existing:
             filtered = df[
-                (df['model'] == model_name) & 
-                (df['dataset'] == dataset) & 
+                (df['model'] == model_name) &
+                (df['dataset'] == dataset) &
                 (df['checkpoint'] == get_pretrained_ckpt(dataset)) &
                 (df['attack'] == 'weather') &
                 (df['weather_type'] == weather) &
@@ -186,7 +186,7 @@ def evaluate(
             if not filtered.empty:
                 if targeted:
                     filtered = filtered[filtered['target'] == target]
-                
+
                 metrics = ['epe', 'px3', 'cosim']
                 results = {metric: float(filtered.iloc[0][metric]) for metric in metrics}
                 return model, results
@@ -198,9 +198,9 @@ def evaluate(
         args.attack = 'weather'
         args.attack_targeted = targeted
         args.attack_target = target
-        
+
         model = get_model(model_name, args.pretrained_ckpt, args)
-        # attack(args, model)
+        attack(args, model)
 
         # load results from json
         results = get_results(args.output_path / f'metrics_{dataset}.json')
@@ -212,8 +212,8 @@ def evaluate(
 
         if retrieve_existing:
             filtered = df[
-                (df['model'] == model_name) & 
-                (df['dataset'] == dataset) & 
+                (df['model'] == model_name) &
+                (df['dataset'] == dataset) &
                 (df['checkpoint'] == get_pretrained_ckpt(dataset)) &
                 (df['attack'] == 'common_corruptions') &
                 (df['severity'] == severity)
@@ -236,20 +236,20 @@ def evaluate(
             args.cc_severity = severity
             model = get_model(model_name, args.pretrained_ckpt, args)
             attack(args, model)
-            
+
             # load results from json
             metric_values = get_results(args.output_path / f'metrics_{dataset}.json')
             results[corruption] = metric_values
         return model, results
-    
+
     elif threat_model == '3dcommoncorruption':
         if severity < 1 or severity > 5:
             raise ValueError("Severity must be an integer between 1 and 5.")
-        
+
         if retrieve_existing:
             filtered = df[
-                (df['model'] == model_name) & 
-                (df['dataset'] == dataset) & 
+                (df['model'] == model_name) &
+                (df['dataset'] == dataset) &
                 (df['checkpoint'] == get_pretrained_ckpt(dataset)) &
                 (df['attack'] == '3dcc') &
                 (df['3dcc_intensity'] == severity)
@@ -266,7 +266,7 @@ def evaluate(
         for corruption in common_corruptions_3d:
             args = get_args_parser(model_name, dataset)
             args.output_path = Path(f'outputs/validate/{model_name}_{args.pretrained_ckpt}/3dcc/{corruption}')
-            args.output_path.mkdir(parents=True, exist_ok=True)            
+            args.output_path.mkdir(parents=True, exist_ok=True)
             args.attack = '3dcc'
             args.tdcc_corruption = corruption
             args.tdcc_intensity = severity
@@ -278,7 +278,7 @@ def evaluate(
 
             model = get_model(model_name, args.pretrained_ckpt, args)
             attack(args, model)
-            
+
             # load results from json
             metric_values = get_results(args.output_path / f'metrics_{dataset}.json')
             results[corruption] = metric_values
@@ -298,26 +298,26 @@ if __name__ == "__main__":
 
     model, results = evaluate(
         model_name='RAFT',
-        dataset='KITTI2015', 
+        dataset='KITTI2015',
         retrieve_existing=True,
     )
     print(results)
 
     model, results = evaluate(
-        model_name='RAFT', 
-        dataset='KITTI2015', 
-        retrieve_existing=True, 
-        threat_model='PGD', 
-        iterations=20, epsilon=8/255, alpha=0.01, lp_norm='Linf', 
+        model_name='RAFT',
+        dataset='KITTI2015',
+        retrieve_existing=True,
+        threat_model='PGD',
+        iterations=20, epsilon=8/255, alpha=0.01, lp_norm='Linf',
         targeted=True, target='zero', optim_wrt='ground_truth',
     )
     print(results)
-    
+
     model, results = evaluate(
-        model_name='RAFT', 
-        dataset='Sintel-Final', 
-        retrieve_existing=True, 
-        threat_model='Adversarial_Weather', 
+        model_name='RAFT',
+        dataset='Sintel-Final',
+        retrieve_existing=True,
+        threat_model='Adversarial_Weather',
         weather='snow', num_particles=10000, targeted=True, target='zero',
     )
     print(results)
@@ -326,8 +326,8 @@ if __name__ == "__main__":
         model_name='RAFT',
         dataset='KITTI2015',
         retrieve_existing=True,
-        threat_model='2DCommonCorruption', 
-        severity=3, 
+        threat_model='2DCommonCorruption',
+        severity=3,
     )
     print(results)
 
@@ -335,7 +335,7 @@ if __name__ == "__main__":
         model_name='RAFT',
         dataset='KITTI2015',
         retrieve_existing=True,
-        threat_model='3DCommonCorruption', 
-        severity=3, 
+        threat_model='3DCommonCorruption',
+        severity=3,
     )
     print(results)
