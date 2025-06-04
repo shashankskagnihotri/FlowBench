@@ -218,6 +218,7 @@ def extract_flakes(args):
 
 
 def get_weather(has_weather, weatherdat, scene_data, args, seed=None, load_only=False):
+    success = False
     if has_weather:
         print("Loading existing weather model instead of generating particles.")
         weather, success = load_weather(weatherdat)
@@ -267,13 +268,9 @@ def recolor_weather(weather, args):
 
 
 def generate_weather(scene_data, args, seed=None):
+    cpucount = multiprocessing.cpu_count() // 2
 
-    if args.cpu_count == 0:
-        cpucount = multiprocessing.cpu_count() // 2
-    else:
-        cpucount = args.cpu_count
-
-    assert args.flakesize_max % 2 != 0
+    assert args["weather_flakesize_max"] % 2 != 0
 
     points3D_b = []
     motion3D_b = []
@@ -282,7 +279,7 @@ def generate_weather(scene_data, args, seed=None):
     flakestrans_b = []
 
     # fist create more particles than needed
-    split_size = args.num_flakes // cpucount + 1
+    split_size = args["weather_num_flakes"] // cpucount + 1
 
     flake_array = extract_flakes(args)
 
