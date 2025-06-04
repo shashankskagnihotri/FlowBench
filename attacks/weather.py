@@ -21,7 +21,7 @@ import torch
 import attacks.attack_utils.loss_criterion as losses
 import torch.optim as optim
 import numpy as np
-
+from tqdm import tqdm
 
 def get_optimizer(optimizer_name, optimization_parameters, optimizer_lr=0.001):
     if optimizer_name == "Adam":
@@ -47,7 +47,7 @@ def weather(
     # substitude model specific args
     if attack_args["model"] in ("gma", "raft"):
         model.args.iters = attack_args["weather_model_iters"]
-        
+
 
     # Define what device we are using
     if not torch.cuda.is_available():
@@ -299,8 +299,7 @@ def attack_image(
     model.zero_grad()
     optimizer.zero_grad()
 
-    for steps in range(attack_args["weather_steps"]):
-        print(f"into Schleife, step {steps}")
+    for steps in tqdm(range(attack_args["weather_steps"]), desc="Weather attack iterations"):
         # Calculate loss
         loss = losses.loss_weather(
             flow_weather_pred,
