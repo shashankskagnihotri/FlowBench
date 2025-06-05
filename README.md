@@ -8,10 +8,10 @@ This repository provides tools and pre-trained models for benchmarking the robus
 
 This package requires **Python 3.10.x** (tested with 3.10.17). Please ensure you have a compatible Python version installed.
 
-> ⚠️ **CUDA Toolkit Version Warning:**  
-> This package is installed assuming your system uses **CUDA 11.8** (i.e., you have the CUDA 11.8 toolkit installed system-wide).  
-> If your system CUDA version differs from the one used to build the PyTorch installation, you may encounter runtime issues.  
-> In that case, follow the official PyTorch installation instructions to install the appropriate version matching your system:  
+> ⚠️ **CUDA Toolkit Version Warning:**
+> This package is installed assuming your system uses **CUDA 11.8** (i.e., you have the CUDA 11.8 toolkit installed system-wide).
+> If your system CUDA version differs from the one used to build the PyTorch installation, you may encounter runtime issues.
+> In that case, follow the official PyTorch installation instructions to install the appropriate version matching your system:
 > https://pytorch.org/get-started/locally/
 
 ### Step 1: Run the installation script
@@ -58,6 +58,17 @@ datasets/3D_Common_Corruption_Images/Sintel
 ```bash
 bash download.sh
 ```
+#### Adversial weather
+
+There are two options:
+
+1) Download precomputed weather particle files via script (or manually from https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-3677).
+
+```bash
+bash download_weather_files.sh
+```
+
+2) Generate your own variant with custom parameters. Follow the instructions from the [original paper](https://github.com/cv-stuttgart/DistractingDownpour).
 
 ---
 
@@ -88,10 +99,10 @@ To browse the full list of supported models:
 from flowbench.evals import evaluate
 
 model, results = evaluate(
-    model_name='RAFT', 
-    dataset='KITTI2015', 
-    retrieve_existing=True, 
-    threat_model='PGD', 
+    model_name='RAFT',
+    dataset='KITTI2015',
+    retrieve_existing=True,
+    threat_model='PGD',
     iterations=20, epsilon=8/255, alpha=0.01,
     lp_norm='Linf', optim_wrt='ground_truth',
     targeted=True, target='zero',
@@ -111,16 +122,28 @@ model, results = evaluate(
 #### Adversarial Weather
 
 ```python
+# demo.py
 from flowbench.evals import evaluate
 
-model, results = evaluate(
-    model_name='RAFT', 
-    dataset='KITTI2015', 
-    retrieve_existing=True, 
-    threat_model='Adversarial_Weather', 
-    weather='snow', num_particles=10000, 
-    targeted=True, target='zero',
-)
+if __name__ == '__main__':
+    model, results = evaluate(
+        model_name='RAFT',
+        dataset='Sintel-Final',
+        retrieve_existing=False,
+        threat_model='Adversarial_Weather',
+        weather='snow', num_particles=10000, targeted=True, target='zero',
+    )
+    print(results)
+```
+
+```bash
+python demo.py --weather_data path_to_particle_data
+```
+
+if you used `download_weather_files.sh` then three variants of particle data for the Sintel dataset should be under this path `datasets/adv_weather_data/`. An example would then be:
+
+```bash
+python demo.py --weather_data datasets/adv_weather_data/weather_snow_3000
 ```
 
 - `retrieve_existing` works as described above.
@@ -138,9 +161,9 @@ from flowbench.evals import evaluate
 model, results = evaluate(
     model_name='RAFT',
     dataset='KITTI2015',
-    retrieve_existing=True, 
-    threat_model='2DCommonCorruption', 
-    severity=3, 
+    retrieve_existing=True,
+    threat_model='2DCommonCorruption',
+    severity=3,
 )
 ```
 
@@ -156,9 +179,9 @@ from flowbench.evals import evaluate
 model, results = evaluate(
     model_name='RAFT',
     dataset='KITTI2015',
-    retrieve_existing=True, 
-    threat_model='3DCommonCorruption', 
-    severity=3, 
+    retrieve_existing=True,
+    threat_model='3DCommonCorruption',
+    severity=3,
 )
 ```
 
