@@ -46,6 +46,12 @@ pip install -e .
 4. Download the MPI Sintel Depth training data from the [MPI Sintel Depth Training Data](http://sintel.is.tue.mpg.de/depth).
 5. Unzip the archive and ensure it contains `training/camdata_left`, `training/depth`, and `training/depth_viz`. Move these directories under `datasets/Sintel/training`.
 
+or you can use the following script:
+
+```bash
+bash download_mpi_sintel.sh
+```
+
 #### 3D Common Corruptions Images
 
 1. Download the precomputed 3D Common Corruption Images for KITTI2015 and MPI Sintel using the script below. After download, the directory structure should look like:
