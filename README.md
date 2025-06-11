@@ -36,7 +36,7 @@ pip install -e .
 
 1. Download the KITTI 2015 dataset from the [KITTI Scene Flow Benchmark](https://www.cvlibs.net/datasets/kitti/eval_scene_flow.php?benchmark=stereo).
 2. After unzipping, ensure the contents include `training/` and `testing/` directories.
-3. Move the dataset to the following path: `datasets/kitti2015`.
+3. Move the dataset to the following path: `datasets/kitti2015` or adjust the path to the datasets in ´ptlflow/datasets.yml´.
 
 #### MPI Sintel
 
@@ -44,7 +44,7 @@ pip install -e .
 2. After unzipping, ensure the contents include `training/` and `test/` directories.
 3. Move the dataset to the following path: `datasets/Sintel`.
 4. Download the MPI Sintel Depth training data from the [MPI Sintel Depth Training Data](http://sintel.is.tue.mpg.de/depth).
-5. Unzip the archive and ensure it contains `training/camdata_left`, `training/depth`, and `training/depth_viz`. Move these directories under `datasets/Sintel/training`.
+5. Unzip the archive and ensure it contains `training/camdata_left`, `training/depth`, and `training/depth_viz`. Move these directories under `datasets/Sintel/training` or adjust the path to the datasets in ´ptlflow/datasets.yml´.
 
 or you can use the following script:
 
@@ -62,8 +62,11 @@ datasets/3D_Common_Corruption_Images/Sintel
 ```
 
 ```bash
-bash download.sh
+bash download_3dcc_data.sh
 ```
+
+Even if you only want to evaluate on the 3D Common Corruption Images, it is still necesarry to download the original data into the expected folder (see above) to avoid an error.
+
 #### Adversial weather
 
 There are two options:
@@ -131,16 +134,22 @@ model, results = evaluate(
 # demo.py
 from flowbench.evals import evaluate
 
-if __name__ == '__main__':
-    model, results = evaluate(
-        model_name='RAFT',
-        dataset='Sintel-Final',
-        retrieve_existing=False,
-        threat_model='Adversarial_Weather',
-        weather='snow', num_particles=10000, targeted=True, target='zero',
-    )
-    print(results)
+model, results = evaluate(
+    model_name='RAFT',
+    dataset='Sintel-Final',
+    retrieve_existing=False,
+    threat_model='Adversarial_Weather',
+    weather='snow',
+    num_particles=10000,
+    targeted=True,
+    target='zero',
+    weather_data="datasets/adv_weather_data/weather_particles_red",
+)
 ```
+
+See the docstring of evaluate for my configuration options.
+
+To use evaluate via command line:
 
 ```bash
 python demo.py --weather_data path_to_particle_data

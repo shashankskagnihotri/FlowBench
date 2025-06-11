@@ -58,6 +58,30 @@ def evaluate(
     lp_norm: str = 'Linf', targeted: bool = True, target: str = 'zero', optim_wrt: str = 'ground_truth',
     weather: str = 'snow', num_particles: int = 10000,
     severity: int = 3,
+    # WeatherConfig parameters
+    attack_loss: str = "epe",
+    weather_scene_scale: float = 1.0,
+    weather_data: str = "datasets/adv_weather_data/weather_particles_red",
+    weather_model_iters: int = 32,
+    weather_steps: int = 750,
+    weather_learn_offset: bool = True,
+    weather_learn_motionoffset: bool = True,
+    weather_learn_color: bool = True,
+    weather_learn_transparency: bool = True,
+    weather_optimizer: str = "Adam",
+    weather_alph_motion: float = 1000.0,
+    weather_alph_motionoffset: float = 1000.0,
+    weather_motionblur_samples: int = 10,
+    weather_do_motionblur: bool = True,
+    weather_motionblur_scale: float = 0.025,
+    weather_depth_check: bool = False,
+    weather_depth_check_differentiable: bool = False,
+    weather_transparency_scale: float = 1.0,
+    weather_rendering_method: str = "additive",
+    weather_recolor: bool = False,
+    weather_flake_r: float = 255.0,
+    weather_flake_g: float = 255.0,
+    weather_flake_b: float = 255.0,
 ):
     """
     Evaluate the robustness of optical flow estimation under various conditions, including
@@ -78,6 +102,29 @@ def evaluate(
         weather (str): Weather type for adversarial weather attack(used in adversarial weather).
         num_particles (int): Number of particles per frame (used in adversarial weather).
         severity (int): Corruption severity level (1–5) used in 2D and 3D common corruptions.
+        attack_loss (str): Set the name of the used loss function (mse, epe, cosim).
+        weather_scene_scale (float): A global scaling to the scene depth.
+        weather_data (str): Path to dataset that contains weather data.
+        weather_model_iters (int): Number of iters for gma/raft model.
+        weather_steps (int): Number of optimization steps per image.
+        weather_learn_offset (bool): Whether to optimize initial position of particles.
+        weather_learn_motionoffset (bool): Whether to optimize endpoint of particle motion.
+        weather_learn_color (bool): Whether to optimize color of particles.
+        weather_learn_transparency (bool): Whether to optimize transparency of particles.
+        weather_optimizer (str): Optimizer used for perturbations.
+        weather_alph_motion (float): Weighting for the motion loss.
+        weather_alph_motionoffset (float): Weighting for the motion offset loss.
+        weather_motionblur_samples (int): Number of flakes drawn per blurred flake.
+        weather_do_motionblur (bool): Control if particles are rendered with motion blur.
+        weather_motionblur_scale (float): Scaling factor for motion blur.
+        weather_depth_check (bool): Whether particles are rendered if behind an object.
+        weather_depth_check_differentiable (bool): Whether rendering check for occlusion is in compute graph.
+        weather_transparency_scale (float): Scaling factor for particle transparency.
+        weather_rendering_method (str): Method for rendering particle color.
+        weather_recolor (bool): Whether all weather is recolored with given RGB value.
+        weather_flake_r (float): R value for particle RGB.
+        weather_flake_g (float): G value for particle RGB.
+        weather_flake_b (float): B value for particle RGB.
     """
     model_name = model_name.lower()
     if model_name not in get_list_of_available_models_list():
@@ -199,6 +246,9 @@ def evaluate(
         args.attack_targeted = targeted
         args.attack_target = target
 
+        import pudb
+
+        pudb.set_trace()
         model = get_model(model_name, args.pretrained_ckpt, args)
         attack(args, model)
 
