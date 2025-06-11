@@ -246,9 +246,6 @@ def evaluate(
         args.attack_targeted = targeted
         args.attack_target = target
 
-        import pudb
-
-        pudb.set_trace()
         model = get_model(model_name, args.pretrained_ckpt, args)
         attack(args, model)
 
@@ -294,7 +291,7 @@ def evaluate(
 
     elif threat_model == '3dcommoncorruption':
         if severity < 1 or severity > 5:
-            raise ValueError("Severity must be an integer between 1 and 5.")
+            raise ValueError(f"Severity must be an integer between 1 and 5. Severity is {severity}")
 
         if retrieve_existing:
             filtered = df[
